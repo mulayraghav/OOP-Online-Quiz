@@ -64,44 +64,54 @@ public:
 
         } while (choice != 4);
     }
+// -------------------------------
+// Add Question in CSV format (Clean + Header + Quotes for Question only)
+// -------------------------------
+void addQuestionToCSV() {
+    // ✅ Check if header is needed
+    bool writeHeader = false;
+    ifstream check("questions.csv");
+    if (!check.good() || check.peek() == ifstream::traits_type::eof())
+        writeHeader = true;
+    check.close();
 
-    // -------------------------------
-    // Add Question in CSV format
-    // -------------------------------
-    void addQuestionToCSV() {
-        ofstream file("questions.csv", ios::app);
-        if (!file) {
-            cout << "Error opening questions file.\n";
-            return;
-        }
-
-        string text, options[4];
-        char correctOption;
-
-        cout << "\nEnter Question: ";
-        getline(cin, text);
-
-        for (int i = 0; i < 4; i++) {
-            cout << "Enter Option " << char('A' + i) << ": ";
-            getline(cin, options[i]);
-        }
-
-        cout << "Enter Correct Option (A/B/C/D): ";
-        cin >> correctOption;
-        correctOption = toupper(correctOption);
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-        // Format: Question,OptionA,OptionB,OptionC,OptionD,CorrectOption
-        file << '"' << text << '"' << ","  // wrap question in quotes for safety
-             << '"' << options[0] << '"' << ","
-             << '"' << options[1] << '"' << ","
-             << '"' << options[2] << '"' << ","
-             << '"' << options[3] << '"' << ","
-             << correctOption << "\n";
-
-        file.close();
-        cout << "\nQuestion added successfully to questions.csv!\n";
+    ofstream file("questions.csv", ios::app);
+    if (!file) {
+        cout << "Error opening questions file.\n";
+        return;
     }
+
+    string text, options[4];
+    char correctOption;
+
+    cout << "\nEnter Question: ";
+    getline(cin, text);
+
+    for (int i = 0; i < 4; i++) {
+        cout << "Enter Option " << char('A' + i) << ": ";
+        getline(cin, options[i]);
+    }
+
+    cout << "Enter Correct Option (A/B/C/D): ";
+    cin >> correctOption;
+    correctOption = toupper(correctOption);
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    //  Write header if file was empty
+    if (writeHeader)
+        file << "Question,OptionA,OptionB,OptionC,OptionD,Answer\n";
+
+    //  Write data: Only the question is quoted
+    file << '"' << text << '"' << ","
+         << options[0] << ","
+         << options[1] << ","
+         << options[2] << ","
+         << options[3] << ","
+         << correctOption << "\n";
+
+    file.close();
+    cout << "\nQuestion added successfully to questions.csv!\n";
+}
 
     // -------------------------------
     // View Questions from CSV
