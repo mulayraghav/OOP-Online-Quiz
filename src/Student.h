@@ -5,69 +5,96 @@
 #include "Quiz.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <ctime>
 #include <iomanip>
 using namespace std;
 
-class Student : public User {
+class Student : public User
+{
 public:
     Student(string uname = "", string pass = "") : User(uname, pass) {}
 
-    void registerStudent() {
+    void registerStudent()
+    {
         cout << "\n[Student Registration]\n";
         cout << "Enter new username: ";
         cin >> username;
         cout << "Enter password: ";
         cin >> password;
 
-        ofstream file("students.txt", ios::app);
-        if (!file) {
+        // ✅ Check if file is empty (write header only once)
+        bool writeHeader = false;
+        ifstream check("students.csv");
+        if (!check.good() || check.peek() == ifstream::traits_type::eof())
+            writeHeader = true;
+        check.close();
+
+        ofstream file("students.csv", ios::app);
+        if (!file)
+        {
             cout << "Error opening student file.\n";
             return;
         }
-        file << username << " " << password << endl;
+
+        if (writeHeader)
+            file << "Username,Password\n";
+
+        file << username << "," << password << "\n";
         file.close();
 
         cout << "\nRegistration successful! You can now log in.\n";
     }
 
-    void login() override {
+    void login() override
+    {
         cout << "\n[Student Login]\n";
         cout << "Enter username: ";
         cin >> username;
         cout << "Enter password: ";
         cin >> password;
 
-        ifstream file("students.txt");
-        if (!file) {
+        ifstream file("students.csv");
+        if (!file)
+        {
             cout << "No registered students found. Please register first.\n";
             return;
         }
 
-        string u, p;
+        string line, u, p;
         bool found = false;
-        while (file >> u >> p) {
-            if (u == username && p == password) {
+        while (getline(file, line))
+        {
+            stringstream ss(line);
+            getline(ss, u, ',');
+            getline(ss, p, ',');
+            if (u == username && p == password)
+            {
                 found = true;
                 break;
             }
         }
         file.close();
 
-        if (found) {
+        if (found)
+        {
             cout << "\nLogin successful!\n";
             studentMenu();
-        } else {
+        }
+        else
+        {
             cout << "\nInvalid credentials. Try again or register first.\n";
         }
     }
 
-    void studentMenu() {
+    void studentMenu()
+    {
         int choice;
         Quiz quiz;
         quiz.loadQuestions();
 
-        do {
+        do
+        {
             cout << "\n--- Student Menu ---\n";
             cout << "1. Attempt Quiz\n";
             cout << "2. View Results\n";
@@ -87,9 +114,11 @@ public:
         } while (choice != 3);
     }
 
-    void attemptQuiz(Quiz& quiz) {
+    void attemptQuiz(Quiz &quiz)
+    {
         int total = quiz.getQuestionCount();
-        if (total == 0) {
+        if (total == 0)
+        {
             cout << "No questions available.\n";
             return;
         }
@@ -97,7 +126,8 @@ public:
         cout << "\nStarting Quiz...\n";
         int score = 0;
         char ans;
-        for (int i = 0; i < total; i++) {
+        for (int i = 0; i < total; i++)
+        {
             Question q = quiz.getQuestion(i);
             cout << "\nQ" << i + 1 << ": " << q.text << endl;
             for (int j = 0; j < 4; j++)
@@ -110,35 +140,77 @@ public:
                 score++;
         }
 
+        // Get current date and time
         time_t now = time(0);
-        tm* ltm = localtime(&now);
-        ofstream result("results.txt", ios::app);
-        result << left << setw(15) << username
-               << " scored " << setw(5) << score << "/" << total
-               << "  Date: " << 1900 + ltm->tm_year << "-" << 1 + ltm->tm_mon << "-" << ltm->tm_mday
-               << "  Time: " << setw(2) << setfill('0') << ltm->tm_hour << ":"
-               << setw(2) << ltm->tm_min << ":" << setw(2) << ltm->tm_sec
-               << setfill(' ') << endl;
+        tm *ltm = localtime(&now);
+
+        // ✅ Check if file is empty (write header only once)
+        bool writeHeader = false;
+        ifstream check("results.csv");
+        if (!check.good() || check.peek() == ifstream::traits_type::eof())
+            writeHeader = true;
+        check.close();
+
+        ofstream result("results.csv", ios::app);
+        if (!result)
+        {
+            cout << "Error opening results file.\n";
+            return;
+        }
+
+        if (writeHeader)
+            result << "Username,Score,Total,Date,Time\n";
+
+        // Format: username,score,total,date,time
+        result << username << ","
+               << score << ","
+               << total << ","
+               << (1900 + ltm->tm_year) << "-"
+               << setw(2) << setfill('0') << (1 + ltm->tm_mon) << "-"
+               << setw(2) << ltm->tm_mday << ","
+               << setw(2) << ltm->tm_hour << ":"
+               << setw(2) << ltm->tm_min << ":"
+               << setw(2) << ltm->tm_sec << "\n";
         result.close();
 
         cout << "\nQuiz Completed! Your Score: " << score << "/" << total << endl;
     }
 
-    void viewResults() {
-        ifstream file("results.txt");
-        if (!file) {
+    void viewResults()
+    {
+        ifstream file("results.csv");
+        if (!file)
+        {
             cout << "\nNo results available.\n";
             return;
         }
 
-        cout << "\n--- Student Quiz Results ---\n";
-        cout << left << setw(15) << "Student" << setw(15) << "Score" << setw(15) << "Date" << setw(10) << "Time" << endl;
+        cout << "\n--- Your Quiz Results ---\n";
+        cout << left << setw(15) << "Student"
+             << setw(10) << "Score"
+             << setw(10) << "Total"
+             << setw(15) << "Date"
+             << setw(10) << "Time" << endl;
         cout << string(60, '-') << endl;
 
-        string line;
-        while (getline(file, line)) {
-            if (line.find(username) != string::npos)
-                cout << line << endl;
+        string line, user, score, total, date, time;
+        while (getline(file, line))
+        {
+            stringstream ss(line);
+            getline(ss, user, ',');
+            getline(ss, score, ',');
+            getline(ss, total, ',');
+            getline(ss, date, ',');
+            getline(ss, time, ',');
+
+            if (user == username)
+            {
+                cout << left << setw(15) << user
+                     << setw(10) << score
+                     << setw(10) << total
+                     << setw(15) << date
+                     << setw(10) << time << endl;
+            }
         }
 
         file.close();

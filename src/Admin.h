@@ -5,6 +5,7 @@
 #include "Quiz.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <limits> // for numeric_limits
 using namespace std;
@@ -46,13 +47,13 @@ public:
 
             switch (choice) {
                 case 1:
-                    addQuestionToFile();
+                    addQuestionToCSV();
                     break;
                 case 2:
-                    viewQuestionsFromFile();
+                    viewQuestionsFromCSV();
                     break;
                 case 3:
-                    viewResults();
+                    viewResultsFromCSV();
                     break;
                 case 4:
                     cout << "Logging out...\n";
@@ -64,8 +65,11 @@ public:
         } while (choice != 4);
     }
 
-    void addQuestionToFile() {
-        ofstream file("questions.txt", ios::app);
+    // -------------------------------
+    // Add Question in CSV format
+    // -------------------------------
+    void addQuestionToCSV() {
+        ofstream file("questions.csv", ios::app);
         if (!file) {
             cout << "Error opening questions file.\n";
             return;
@@ -87,52 +91,87 @@ public:
         correctOption = toupper(correctOption);
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        file << text << endl;
-        for (int i = 0; i < 4; i++) file << options[i] << endl;
-        file << correctOption << endl;
-        file << "---" << endl;
+        // Format: Question,OptionA,OptionB,OptionC,OptionD,CorrectOption
+        file << '"' << text << '"' << ","  // wrap question in quotes for safety
+             << '"' << options[0] << '"' << ","
+             << '"' << options[1] << '"' << ","
+             << '"' << options[2] << '"' << ","
+             << '"' << options[3] << '"' << ","
+             << correctOption << "\n";
 
         file.close();
-        cout << "\nQuestion added successfully!\n";
+        cout << "\nQuestion added successfully to questions.csv!\n";
     }
 
-    void viewQuestionsFromFile() {
-        ifstream file("questions.txt");
+    // -------------------------------
+    // View Questions from CSV
+    // -------------------------------
+    void viewQuestionsFromCSV() {
+        ifstream file("questions.csv");
         if (!file) {
             cout << "\nNo questions available.\n";
             return;
         }
 
-        string line;
         cout << "\n--- All Questions ---\n";
+        string line;
         int qNo = 1;
+
         while (getline(file, line)) {
-            if (line == "---") {
-                cout << "\n";
-                qNo++;
-            } else {
-                cout << line << endl;
-            }
+            stringstream ss(line);
+            string text, optA, optB, optC, optD, correct;
+            getline(ss, text, ',');
+            getline(ss, optA, ',');
+            getline(ss, optB, ',');
+            getline(ss, optC, ',');
+            getline(ss, optD, ',');
+            getline(ss, correct, ',');
+
+            cout << "\nQ" << qNo++ << ": " << text << "\n";
+            cout << "  A) " << optA << "\n";
+            cout << "  B) " << optB << "\n";
+            cout << "  C) " << optC << "\n";
+            cout << "  D) " << optD << "\n";
+            cout << "  Correct Option: " << correct << "\n";
         }
 
         file.close();
     }
 
-    void viewResults() {
-        ifstream file("results.txt");
+    // -------------------------------
+    // View Student Results from CSV
+    // -------------------------------
+    void viewResultsFromCSV() {
+        ifstream file("results.csv");
         if (!file) {
             cout << "\nNo results found.\n";
             return;
         }
 
         cout << "\n--- Student Quiz Results ---\n";
-        cout << left << setw(15) << "Student" << setw(15) << "Score"
-             << setw(20) << "Date" << setw(10) << "Time" << endl;
+        cout << left << setw(15) << "Student"
+             << setw(10) << "Score"
+             << setw(10) << "Total"
+             << setw(15) << "Date"
+             << setw(10) << "Time" << endl;
         cout << string(60, '-') << endl;
 
         string line;
         while (getline(file, line)) {
-            cout << line << endl;
+            stringstream ss(line);
+            string user, score, total, date, time;
+
+            getline(ss, user, ',');
+            getline(ss, score, ',');
+            getline(ss, total, ',');
+            getline(ss, date, ',');
+            getline(ss, time, ',');
+
+            cout << left << setw(15) << user
+                 << setw(10) << score
+                 << setw(10) << total
+                 << setw(15) << date
+                 << setw(10) << time << endl;
         }
 
         file.close();
