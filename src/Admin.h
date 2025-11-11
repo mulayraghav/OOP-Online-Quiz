@@ -185,8 +185,17 @@ public:
         cout << string(60, '-') << endl;
 
         string line;
+
+        // ✅ Skip the header line in CSV
+        if (file.peek() != EOF)
+            getline(file, line);
+
+        // Now read actual data
         while (getline(file, line))
         {
+            if (line.empty())
+                continue;
+
             stringstream ss(line);
             string user, score, total, date, time;
 

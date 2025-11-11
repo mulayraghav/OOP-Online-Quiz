@@ -6,7 +6,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <algorithm>
 #include <ctime>
 #include <limits>
 using namespace std;
