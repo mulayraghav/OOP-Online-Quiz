@@ -8,7 +8,6 @@
 #include <sstream>
 #include <algorithm>
 #include <ctime>
-#include <random>
 #include <limits>
 using namespace std;
 
@@ -31,13 +30,14 @@ public:
 
         if (!file)
         {
-            cout << "No questions file found (questions.csv)!\n";
+            cout << "No questions file found (questions.csv)! \n";
             return;
         }
 
         questions.clear();
         string line;
 
+        // Skip header line if it exists
         if (file.peek() != EOF)
             getline(file, line);
 
@@ -72,15 +72,6 @@ public:
     {
         const string filename = "questions.csv";
 
-        bool writeHeader = false;
-        {
-            ifstream check(filename);
-
-            if (!check.is_open() || check.peek() == ifstream::traits_type::eof())
-                writeHeader = true;
-            check.close();
-        }
-
         ofstream file(filename, ios::out);
         if (!file)
         {
@@ -88,8 +79,10 @@ public:
             return;
         }
 
+        // Write header
         file << "Question,OptionA,OptionB,OptionC,OptionD,CorrectOption\n";
 
+        // Write each question
         for (auto &q : questions)
         {
             file << '"' << q.text << '"' << ","
@@ -122,115 +115,6 @@ public:
         }
     }
 
-    // void addQuestion()
-    // {
-    //     Question q;
-    //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    //     cout << "\nEnter Question: ";
-    //     getline(cin, q.text);
-
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //         cout << "Enter Option " << char('A' + i) << ": ";
-    //         getline(cin, q.options[i]);
-    //     }
-
-    //     cout << "Enter Correct Option (A-D): ";
-    //     cin >> q.correctOption;
-    //     q.correctOption = toupper(q.correctOption);
-
-    //     questions.push_back(q);
-    //     saveQuestions();
-    //     cout << "\nQuestion added successfully!\n";
-    // }
-
-    // void editQuestion()
-    // {
-    //     if (questions.empty())
-    //     {
-    //         cout << "No questions to edit.\n";
-    //         return;
-    //     }
-
-    //     displayAll();
-    //     cout << "\nEnter question number to edit: ";
-    //     int qno;
-    //     cin >> qno;
-
-    //     if (qno < 1 || qno > (int)questions.size())
-    //     {
-    //         cout << "Invalid question number!\n";
-    //         return;
-    //     }
-
-    //     Question &q = questions[qno - 1];
-    //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    //     cout << "Editing Question " << qno << ":\n";
-    //     cout << "Current: " << q.text << "\nEnter new (or press Enter to keep same): ";
-    //     string newText;
-    //     getline(cin, newText);
-    //     if (!newText.empty())
-    //         q.text = newText;
-
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //         cout << "Option " << char('A' + i) << " [" << q.options[i] << "]: ";
-    //         string newOpt;
-    //         getline(cin, newOpt);
-    //         if (!newOpt.empty())
-    //             q.options[i] = newOpt;
-    //     }
-
-    //     cout << "Correct Option [" << q.correctOption << "]: ";
-    //     string temp;
-    //     getline(cin, temp);
-    //     if (!temp.empty())
-    //     {
-    //         char newCorrect = toupper(temp[0]);
-    //         if (newCorrect >= 'A' && newCorrect <= 'D')
-    //             q.correctOption = newCorrect;
-    //     }
-
-    //     saveQuestions();
-    //     cout << "Question updated successfully!\n";
-    // }
-
-    // // -----------------------------
-    // // Delete question
-    // // -----------------------------
-    // void deleteQuestion()
-    // {
-    //     if (questions.empty())
-    //     {
-    //         cout << "No questions to delete.\n";
-    //         return;
-    //     }
-
-    //     displayAll();
-    //     cout << "\nEnter question number to delete: ";
-    //     int qno;
-    //     cin >> qno;
-
-    //     if (qno < 1 || qno > (int)questions.size())
-    //     {
-    //         cout << "Invalid question number!\n";
-    //         return;
-    //     }
-
-    //     questions.erase(questions.begin() + (qno - 1));
-    //     saveQuestions();
-    //     cout << "Question deleted successfully!\n";
-    // }
-
-    void shuffleQuestions()
-    {
-        random_device rd;
-        mt19937 g(rd());
-        shuffle(questions.begin(), questions.end(), g);
-    }
-
     void takeQuiz()
     {
         if (questions.empty())
@@ -239,7 +123,6 @@ public:
             return;
         }
 
-        shuffleQuestions();
         int score = 0;
         char ans;
 
@@ -252,6 +135,7 @@ public:
             cout << "Enter your answer (A-D): ";
             cin >> ans;
             ans = toupper(ans);
+
             if (ans == questions[i].correctOption)
                 score++;
         }

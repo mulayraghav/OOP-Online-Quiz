@@ -50,7 +50,7 @@ public:
             cout << "4. Logout\n";
             cout << "Enter choice: ";
             cin >> choice;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             switch (choice)
             {
