@@ -25,7 +25,6 @@ private:
     vector<Question> questions;
 
 public:
-
     void loadQuestions()
     {
         ifstream file("questions.csv");
@@ -38,6 +37,10 @@ public:
 
         questions.clear();
         string line;
+
+        if (file.peek() != EOF)
+            getline(file, line);
+
         while (getline(file, line))
         {
             if (line.empty())
@@ -65,41 +68,44 @@ public:
         file.close();
     }
 
-void saveQuestions() {
-    const string filename = "questions.csv";
-
-    bool writeHeader = false;
+    void saveQuestions()
     {
-        ifstream check(filename);
+        const string filename = "questions.csv";
 
-        if (!check.is_open() || check.peek() == ifstream::traits_type::eof())
-            writeHeader = true;
-        check.close();
+        bool writeHeader = false;
+        {
+            ifstream check(filename);
+
+            if (!check.is_open() || check.peek() == ifstream::traits_type::eof())
+                writeHeader = true;
+            check.close();
+        }
+
+        ofstream file(filename, ios::out);
+        if (!file)
+        {
+            cout << "Error saving questions!\n";
+            return;
+        }
+
+        file << "Question,OptionA,OptionB,OptionC,OptionD,CorrectOption\n";
+
+        for (auto &q : questions)
+        {
+            file << '"' << q.text << '"' << ","
+                 << '"' << q.options[0] << '"' << ","
+                 << '"' << q.options[1] << '"' << ","
+                 << '"' << q.options[2] << '"' << ","
+                 << '"' << q.options[3] << '"' << ","
+                 << q.correctOption << "\n";
+        }
+
+        file.close();
+
+        cout << "\n✅ Questions saved successfully to " << filename << " with header.\n";
     }
 
-    ofstream file(filename, ios::out);
-    if (!file) {
-        cout << "Error saving questions!\n";
-        return;
-    }
-
-    file << "Question,OptionA,OptionB,OptionC,OptionD,CorrectOption\n";
-
-    for (auto &q : questions) {
-        file << '"' << q.text << '"' << ","
-             << '"' << q.options[0] << '"' << ","
-             << '"' << q.options[1] << '"' << ","
-             << '"' << q.options[2] << '"' << ","
-             << '"' << q.options[3] << '"' << ","
-             << q.correctOption << "\n";
-    }
-
-    file.close();
-
-    cout << "\n✅ Questions saved successfully to " << filename << " with header.\n";
-}
-
-void displayAll() const
+    void displayAll() const
     {
         if (questions.empty())
         {
@@ -115,7 +121,6 @@ void displayAll() const
             cout << "  Correct Answer: " << questions[i].correctOption << endl;
         }
     }
-
 
     // void addQuestion()
     // {
@@ -139,7 +144,6 @@ void displayAll() const
     //     saveQuestions();
     //     cout << "\nQuestion added successfully!\n";
     // }
-
 
     // void editQuestion()
     // {

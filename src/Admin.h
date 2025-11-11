@@ -10,11 +10,13 @@
 #include <limits>
 using namespace std;
 
-class Admin : public User {
+class Admin : public User
+{
 public:
     Admin(string uname = "admin", string pass = "1234") : User(uname, pass) {}
 
-    void login() override {
+    void login() override
+    {
         string u, p;
         cout << "\n[Admin Login]\n";
         cout << "Enter Username: ";
@@ -22,20 +24,25 @@ public:
         cout << "Enter Password: ";
         cin >> p;
 
-        if (u == username && p == password) {
+        if (u == username && p == password)
+        {
             cout << "\nLogin Successful!\n";
             menu();
-        } else {
+        }
+        else
+        {
             cout << "\nInvalid Credentials!\n";
         }
     }
 
-    void menu() {
+    void menu()
+    {
         int choice;
         Quiz quiz;
         quiz.loadQuestions();
 
-        do {
+        do
+        {
             cout << "\n--- Admin Menu ---\n";
             cout << "1. Add Question\n";
             cout << "2. View Questions\n";
@@ -45,80 +52,83 @@ public:
             cin >> choice;
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear buffer
 
-            switch (choice) {
-                case 1:
-                    addQuestionToCSV();
-                    break;
-                case 2:
-                    viewQuestionsFromCSV();
-                    break;
-                case 3:
-                    viewResultsFromCSV();
-                    break;
-                case 4:
-                    cout << "Logging out...\n";
-                    break;
-                default:
-                    cout << "Invalid choice! Try again.\n";
+            switch (choice)
+            {
+            case 1:
+                addQuestionToCSV();
+                break;
+            case 2:
+                viewQuestionsFromCSV();
+                break;
+            case 3:
+                viewResultsFromCSV();
+                break;
+            case 4:
+                cout << "Logging out...\n";
+                break;
+            default:
+                cout << "Invalid choice! Try again.\n";
             }
 
         } while (choice != 4);
     }
 
-void addQuestionToCSV() {
+    void addQuestionToCSV()
+    {
 
-    bool writeHeader = false;
-    ifstream check("questions.csv");
+        bool writeHeader = false;
+        ifstream check("questions.csv");
 
-    if (!check.good() || check.peek() == ifstream::traits_type::eof())
-        writeHeader = true;
+        if (!check.good() || check.peek() == ifstream::traits_type::eof())
+            writeHeader = true;
 
-    check.close();
+        check.close();
 
-    ofstream file("questions.csv", ios::app);
+        ofstream file("questions.csv", ios::app);
 
-    if (!file) {
-        cout << "Error opening questions file.\n";
-        return;
+        if (!file)
+        {
+            cout << "Error opening questions file.\n";
+            return;
+        }
+
+        string text, options[4];
+        char correctOption;
+
+        cout << "\nEnter Question: ";
+        getline(cin, text);
+
+        for (int i = 0; i < 4; i++)
+        {
+            cout << "Enter Option " << char('A' + i) << ": ";
+            getline(cin, options[i]);
+        }
+
+        cout << "Enter Correct Option (A/B/C/D): ";
+        cin >> correctOption;
+        correctOption = toupper(correctOption);
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if (writeHeader)
+            file << "Question,OptionA,OptionB,OptionC,OptionD,Answer\n";
+
+        file << '"' << text << '"' << ","
+             << options[0] << ","
+             << options[1] << ","
+             << options[2] << ","
+             << options[3] << ","
+             << correctOption << "\n";
+
+        file.close();
+        cout << "\nQuestion added successfully to questions.csv!\n";
     }
 
-    string text, options[4];
-    char correctOption;
-
-    cout << "\nEnter Question: ";
-    getline(cin, text);
-
-    for (int i = 0; i < 4; i++) {
-        cout << "Enter Option " << char('A' + i) << ": ";
-        getline(cin, options[i]);
-    }
-
-    cout << "Enter Correct Option (A/B/C/D): ";
-    cin >> correctOption;
-    correctOption = toupper(correctOption);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    
-    if (writeHeader)
-        file << "Question,OptionA,OptionB,OptionC,OptionD,Answer\n";
-
-    
-    file << '"' << text << '"' << ","
-         << options[0] << ","
-         << options[1] << ","
-         << options[2] << ","
-         << options[3] << ","
-         << correctOption << "\n";
-
-    file.close();
-    cout << "\nQuestion added successfully to questions.csv!\n";
-}
-
-
-    void viewQuestionsFromCSV() {
+    void viewQuestionsFromCSV()
+    {
         ifstream file("questions.csv");
 
-        if (!file) {
+        if (!file)
+        {
             cout << "\nNo questions available.\n";
             return;
         }
@@ -127,7 +137,14 @@ void addQuestionToCSV() {
         string line;
         int qNo = 1;
 
-        while (getline(file, line)) {
+        if (file.peek() != EOF)
+            getline(file, line);
+
+        while (getline(file, line))
+        {
+            if (line.empty())
+                continue;
+
             stringstream ss(line);
             string text, optA, optB, optC, optD, correct;
             getline(ss, text, ',');
@@ -148,17 +165,18 @@ void addQuestionToCSV() {
         file.close();
     }
 
-
-    void viewResultsFromCSV() {
+    void viewResultsFromCSV()
+    {
         ifstream file("results.csv");
 
-        if (!file) {
+        if (!file)
+        {
             cout << "\nNo results found.\n";
             return;
         }
 
         cout << "\n--- Student Quiz Results ---\n";
-        
+
         cout << left << setw(15) << "Student"
              << setw(10) << "Score"
              << setw(10) << "Total"
@@ -167,7 +185,8 @@ void addQuestionToCSV() {
         cout << string(60, '-') << endl;
 
         string line;
-        while (getline(file, line)) {
+        while (getline(file, line))
+        {
             stringstream ss(line);
             string user, score, total, date, time;
 
