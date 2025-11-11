@@ -11,7 +11,7 @@ protected:
     string password;
 public:
     User(string uname = "", string pass = "") : username(uname), password(pass) {}
-    virtual void login() = 0;  // Pure virtual
+    virtual void login() = 0;
 };
 
 #endif

@@ -144,9 +144,11 @@ public:
         time_t now = time(0);
         tm *ltm = localtime(&now);
 
-        // ✅ Check if file is empty (write header only once)
+        // Check if file is empty (write header only once)
         bool writeHeader = false;
+
         ifstream check("results.csv");
+
         if (!check.good() || check.peek() == ifstream::traits_type::eof())
             writeHeader = true;
         check.close();
@@ -161,7 +163,6 @@ public:
         if (writeHeader)
             result << "Username,Score,Total,Date,Time\n";
 
-        // Format: username,score,total,date,time
         result << username << ","
                << score << ","
                << total << ","

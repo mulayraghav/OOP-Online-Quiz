@@ -25,12 +25,11 @@ private:
     vector<Question> questions;
 
 public:
-    // -----------------------------
-    // Load questions from CSV file
-    // -----------------------------
+
     void loadQuestions()
     {
         ifstream file("questions.csv");
+
         if (!file)
         {
             cout << "No questions file found (questions.csv)!\n";
@@ -48,7 +47,6 @@ public:
             Question q;
             string correct;
 
-            // Read CSV fields: Question, OptA, OptB, OptC, OptD, Correct
             getline(ss, q.text, ',');
             getline(ss, q.options[0], ',');
             getline(ss, q.options[1], ',');
@@ -56,7 +54,6 @@ public:
             getline(ss, q.options[3], ',');
             getline(ss, correct, ',');
 
-            // Remove quotes (if any)
             q.text = trimQuotes(q.text);
             for (int i = 0; i < 4; i++)
                 q.options[i] = trimQuotes(q.options[i]);
@@ -68,32 +65,26 @@ public:
         file.close();
     }
 
-    // -----------------------------
-    // Save questions back to CSV
-    // -----------------------------
 void saveQuestions() {
     const string filename = "questions.csv";
 
-    // ✅ Detect if header needs to be written
     bool writeHeader = false;
     {
         ifstream check(filename);
+
         if (!check.is_open() || check.peek() == ifstream::traits_type::eof())
             writeHeader = true;
         check.close();
     }
 
-    // ✅ Open in overwrite mode (rewrite full set, avoids duplicates)
     ofstream file(filename, ios::out);
     if (!file) {
         cout << "Error saving questions!\n";
         return;
     }
 
-    // ✅ Always write header first
     file << "Question,OptionA,OptionB,OptionC,OptionD,CorrectOption\n";
 
-    // ✅ Write all questions
     for (auto &q : questions) {
         file << '"' << q.text << '"' << ","
              << '"' << q.options[0] << '"' << ","
@@ -107,10 +98,8 @@ void saveQuestions() {
 
     cout << "\n✅ Questions saved successfully to " << filename << " with header.\n";
 }
-  // -----------------------------
-    // Display all questions
-    // -----------------------------
-    void displayAll() const
+
+void displayAll() const
     {
         if (questions.empty())
         {
@@ -127,117 +116,110 @@ void saveQuestions() {
         }
     }
 
-    // -----------------------------
-    // Add a new question
-    // -----------------------------
-    void addQuestion()
-    {
-        Question q;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        cout << "\nEnter Question: ";
-        getline(cin, q.text);
+    // void addQuestion()
+    // {
+    //     Question q;
+    //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        for (int i = 0; i < 4; i++)
-        {
-            cout << "Enter Option " << char('A' + i) << ": ";
-            getline(cin, q.options[i]);
-        }
+    //     cout << "\nEnter Question: ";
+    //     getline(cin, q.text);
 
-        cout << "Enter Correct Option (A-D): ";
-        cin >> q.correctOption;
-        q.correctOption = toupper(q.correctOption);
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //         cout << "Enter Option " << char('A' + i) << ": ";
+    //         getline(cin, q.options[i]);
+    //     }
 
-        questions.push_back(q);
-        saveQuestions();
-        cout << "\nQuestion added successfully!\n";
-    }
+    //     cout << "Enter Correct Option (A-D): ";
+    //     cin >> q.correctOption;
+    //     q.correctOption = toupper(q.correctOption);
 
-    // -----------------------------
-    // Edit an existing question
-    // -----------------------------
-    void editQuestion()
-    {
-        if (questions.empty())
-        {
-            cout << "No questions to edit.\n";
-            return;
-        }
+    //     questions.push_back(q);
+    //     saveQuestions();
+    //     cout << "\nQuestion added successfully!\n";
+    // }
 
-        displayAll();
-        cout << "\nEnter question number to edit: ";
-        int qno;
-        cin >> qno;
 
-        if (qno < 1 || qno > (int)questions.size())
-        {
-            cout << "Invalid question number!\n";
-            return;
-        }
+    // void editQuestion()
+    // {
+    //     if (questions.empty())
+    //     {
+    //         cout << "No questions to edit.\n";
+    //         return;
+    //     }
 
-        Question &q = questions[qno - 1];
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    //     displayAll();
+    //     cout << "\nEnter question number to edit: ";
+    //     int qno;
+    //     cin >> qno;
 
-        cout << "Editing Question " << qno << ":\n";
-        cout << "Current: " << q.text << "\nEnter new (or press Enter to keep same): ";
-        string newText;
-        getline(cin, newText);
-        if (!newText.empty())
-            q.text = newText;
+    //     if (qno < 1 || qno > (int)questions.size())
+    //     {
+    //         cout << "Invalid question number!\n";
+    //         return;
+    //     }
 
-        for (int i = 0; i < 4; i++)
-        {
-            cout << "Option " << char('A' + i) << " [" << q.options[i] << "]: ";
-            string newOpt;
-            getline(cin, newOpt);
-            if (!newOpt.empty())
-                q.options[i] = newOpt;
-        }
+    //     Question &q = questions[qno - 1];
+    //     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        cout << "Correct Option [" << q.correctOption << "]: ";
-        string temp;
-        getline(cin, temp);
-        if (!temp.empty())
-        {
-            char newCorrect = toupper(temp[0]);
-            if (newCorrect >= 'A' && newCorrect <= 'D')
-                q.correctOption = newCorrect;
-        }
+    //     cout << "Editing Question " << qno << ":\n";
+    //     cout << "Current: " << q.text << "\nEnter new (or press Enter to keep same): ";
+    //     string newText;
+    //     getline(cin, newText);
+    //     if (!newText.empty())
+    //         q.text = newText;
 
-        saveQuestions();
-        cout << "Question updated successfully!\n";
-    }
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //         cout << "Option " << char('A' + i) << " [" << q.options[i] << "]: ";
+    //         string newOpt;
+    //         getline(cin, newOpt);
+    //         if (!newOpt.empty())
+    //             q.options[i] = newOpt;
+    //     }
 
-    // -----------------------------
-    // Delete question
-    // -----------------------------
-    void deleteQuestion()
-    {
-        if (questions.empty())
-        {
-            cout << "No questions to delete.\n";
-            return;
-        }
+    //     cout << "Correct Option [" << q.correctOption << "]: ";
+    //     string temp;
+    //     getline(cin, temp);
+    //     if (!temp.empty())
+    //     {
+    //         char newCorrect = toupper(temp[0]);
+    //         if (newCorrect >= 'A' && newCorrect <= 'D')
+    //             q.correctOption = newCorrect;
+    //     }
 
-        displayAll();
-        cout << "\nEnter question number to delete: ";
-        int qno;
-        cin >> qno;
+    //     saveQuestions();
+    //     cout << "Question updated successfully!\n";
+    // }
 
-        if (qno < 1 || qno > (int)questions.size())
-        {
-            cout << "Invalid question number!\n";
-            return;
-        }
+    // // -----------------------------
+    // // Delete question
+    // // -----------------------------
+    // void deleteQuestion()
+    // {
+    //     if (questions.empty())
+    //     {
+    //         cout << "No questions to delete.\n";
+    //         return;
+    //     }
 
-        questions.erase(questions.begin() + (qno - 1));
-        saveQuestions();
-        cout << "Question deleted successfully!\n";
-    }
+    //     displayAll();
+    //     cout << "\nEnter question number to delete: ";
+    //     int qno;
+    //     cin >> qno;
 
-    // -----------------------------
-    // Shuffle questions
-    // -----------------------------
+    //     if (qno < 1 || qno > (int)questions.size())
+    //     {
+    //         cout << "Invalid question number!\n";
+    //         return;
+    //     }
+
+    //     questions.erase(questions.begin() + (qno - 1));
+    //     saveQuestions();
+    //     cout << "Question deleted successfully!\n";
+    // }
+
     void shuffleQuestions()
     {
         random_device rd;
@@ -245,9 +227,6 @@ void saveQuestions() {
         shuffle(questions.begin(), questions.end(), g);
     }
 
-    // -----------------------------
-    // Conduct quiz (for testing)
-    // -----------------------------
     void takeQuiz()
     {
         if (questions.empty())
@@ -276,9 +255,6 @@ void saveQuestions() {
         cout << "\nFinal Score: " << score << "/" << questions.size() << "\n";
     }
 
-    // -----------------------------
-    // Utility: trim quotes
-    // -----------------------------
     static string trimQuotes(const string &str)
     {
         if (str.size() >= 2 && str.front() == '"' && str.back() == '"')
@@ -286,9 +262,6 @@ void saveQuestions() {
         return str;
     }
 
-    // -----------------------------
-    // Getters
-    // -----------------------------
     int getQuestionCount() const { return questions.size(); }
 
     Question getQuestion(int index) const

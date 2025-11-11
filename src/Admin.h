@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <limits> // for numeric_limits
+#include <limits>
 using namespace std;
 
 class Admin : public User {
@@ -64,18 +64,19 @@ public:
 
         } while (choice != 4);
     }
-// -------------------------------
-// Add Question in CSV format (Clean + Header + Quotes for Question only)
-// -------------------------------
+
 void addQuestionToCSV() {
-    // ✅ Check if header is needed
+
     bool writeHeader = false;
     ifstream check("questions.csv");
+
     if (!check.good() || check.peek() == ifstream::traits_type::eof())
         writeHeader = true;
+
     check.close();
 
     ofstream file("questions.csv", ios::app);
+
     if (!file) {
         cout << "Error opening questions file.\n";
         return;
@@ -97,11 +98,11 @@ void addQuestionToCSV() {
     correctOption = toupper(correctOption);
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    //  Write header if file was empty
+    
     if (writeHeader)
         file << "Question,OptionA,OptionB,OptionC,OptionD,Answer\n";
 
-    //  Write data: Only the question is quoted
+    
     file << '"' << text << '"' << ","
          << options[0] << ","
          << options[1] << ","
@@ -113,11 +114,10 @@ void addQuestionToCSV() {
     cout << "\nQuestion added successfully to questions.csv!\n";
 }
 
-    // -------------------------------
-    // View Questions from CSV
-    // -------------------------------
+
     void viewQuestionsFromCSV() {
         ifstream file("questions.csv");
+
         if (!file) {
             cout << "\nNo questions available.\n";
             return;
@@ -148,17 +148,17 @@ void addQuestionToCSV() {
         file.close();
     }
 
-    // -------------------------------
-    // View Student Results from CSV
-    // -------------------------------
+
     void viewResultsFromCSV() {
         ifstream file("results.csv");
+
         if (!file) {
             cout << "\nNo results found.\n";
             return;
         }
 
         cout << "\n--- Student Quiz Results ---\n";
+        
         cout << left << setw(15) << "Student"
              << setw(10) << "Score"
              << setw(10) << "Total"
